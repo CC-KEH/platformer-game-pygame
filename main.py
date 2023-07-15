@@ -16,6 +16,26 @@ PLAYER_VELOCITY = 5
 window = pygame.display.set_mode((WIDTH,HEIGHT))
 
 
+#Flips the images for opposite direction movement
+
+def flip(sprites):
+    return [pygame.transform.flip(sprite,True,False) for sprite in sprites]
+
+
+def load_sprites(dir1,dir2,width,height,direcion=False):
+    path =  join('assets',dir1,dir2)
+    images = [file for file in listdir(path) if isfile(join(path,file))] # Load images in list from the directory inside assets/dir1/dir2
+    all_sprites = {}
+    for image in images:
+        sprite_sheet = pygame.image.load(join(path,image)).convert_alpha()
+        sprites = []
+        for i in range(sprite_sheet.get_width()//width):
+            
+
+
+    
+
+
 def get_background(name):
     image = pygame.image.load(join('assets','Background',name))
     x, y, width, height = image.get_rect()
@@ -34,7 +54,6 @@ def draw(window,background,bg_image,player):
     pygame.display.update()
     
  
- 
 def handle_movement(player):
     keys = pygame.key.get_pressed()
     player.x_vel = 0 #* To move only when the key is pressed
@@ -44,10 +63,11 @@ def handle_movement(player):
     if keys[pygame.K_RIGHT]:
         player.move_right(PLAYER_VELOCITY)
         
-    
-    
+       
 class Player(pygame.sprite.Sprite):
     COLOR = (255,0,0)
+    GRAVITY = 1
+    
     def __init__(self,x,y,width,height):
         self.rect = pygame.Rect(x,y,width,height)
         self.x_vel = 0
@@ -55,6 +75,7 @@ class Player(pygame.sprite.Sprite):
         self.mask = None
         self.direction = 'left'
         self.animation_count = 0
+        self.fall_count  = 0
         
     def move(self,dx,dy):
         self.rect.x +=dx
@@ -73,13 +94,14 @@ class Player(pygame.sprite.Sprite):
             self.animation_count = 0
     
     def loop(self,fps):
+        self.y_vel += min(1,(self.fall_count/fps)*self.GRAVITY)
         self.move(self.x_vel,self.y_vel)
+        self.fall_count+=1
         
     def draw(self,win):
         pygame.draw.rect(win,self.COLOR,self.rect)
         
-        
-        
+
 def main(window):
     clock = pygame.time.Clock()
     background, bg_image = get_background('Blue.png')
